@@ -332,12 +332,12 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
       )}
 
       {/* Events Log Popup */}
-      <EventsLog
+      {showEventsLog && (<EventsLog
         isVisible={showEventsLog}
         onClose={() => setShowEventsLog(false)}
         videoDuration={videoDuration}
         isPlaying={isVideoPlaying}
-      />
+      />)}
     </div>
   )
 }
