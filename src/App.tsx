@@ -214,7 +214,7 @@ function App() {
     // Clear recording attachment when user sends a message
     setHasRecordingAttachment(false)
     
-    if (message == "I want to find out how many users drop off after the onboarding screen. This is what it looks like when a user completes the onboarding flow.") {
+    if (message == "I want to find out how many users drop off after onboarding. This is what it looks like when a user completes the onboarding flow.") {
       // Start typing indicator
       setIsTyping(true)
       setLoadingText('Thinking...')
