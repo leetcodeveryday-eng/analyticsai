@@ -48,7 +48,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
 
   useEffect(() => {
     // Play video when shouldPlayVideo becomes true
-    if (shouldPlayVideo && videoRef.current) {
+    if (shouldPlayVideo && videoRef.current && !isVideoPlaying) {
       console.log('Starting video playback, shouldPlayVideo:', shouldPlayVideo, 'playEventsVideo:', playEventsVideo, 'videoPath:', videoPath)
       
       // Set video properties for autoplay
@@ -83,7 +83,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
         })
       }
     }
-  }, [shouldPlayVideo, playEventsVideo, videoPath])
+  }, [shouldPlayVideo, playEventsVideo, videoPath, isVideoPlaying])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
