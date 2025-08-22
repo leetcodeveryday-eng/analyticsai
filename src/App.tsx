@@ -495,6 +495,10 @@ Would you like me to make a Pull Request for the changes?`
                       shouldPlayVideo={shouldPlayVideo}
                       playEventsVideo={playEventsVideo}
                       onVideoComplete={handleVideoComplete}
+                      onVideoEnd={() => {
+                        setPlayEventsVideo(false)
+                        setShouldPlayVideo(false)
+                      }}
                     />
                   </div>
                 </div>

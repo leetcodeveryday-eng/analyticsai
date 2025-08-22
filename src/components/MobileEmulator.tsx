@@ -11,9 +11,10 @@ interface MobileEmulatorProps {
   shouldPlayVideo: boolean
   playEventsVideo?: boolean
   onVideoComplete?: () => void
+  onVideoEnd?: () => void
 }
 
-const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, shouldPlayVideo, playEventsVideo, onVideoComplete }) => {
+const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, shouldPlayVideo, playEventsVideo, onVideoComplete, onVideoEnd }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisComplete, setAnalysisComplete] = useState(false)
   const [overlayPosition, setOverlayPosition] = useState({ x: 92, y: 13 })
@@ -103,7 +104,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
     if (videoRef.current && isVideoPlaying) {
       const currentTime = videoRef.current.currentTime
       
-      if (playEventsVideo) {
+      if (videoPath.includes('events-video')) {
         // Events video: Show password animation from 18 to 23 seconds, dots complete by 21
         if (currentTime >= 18 && currentTime < 23) {
           setShowPasswordAnimation(true)
@@ -141,10 +142,16 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
     setIsVideoPlaying(false)
     setShowEventsLog(false)
     setShowPasswordAnimation(false)
+    setPasswordDots(0)
     
     // Call the callback when events video completes
     if (playEventsVideo && onVideoComplete) {
       onVideoComplete()
+    }
+    
+    // Call the general video end callback to reset states
+    if (onVideoEnd) {
+      onVideoEnd()
     }
   }
 
