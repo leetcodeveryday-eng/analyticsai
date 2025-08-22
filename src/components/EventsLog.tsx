@@ -85,7 +85,6 @@ const EventsLog: React.FC<EventsLogProps> = ({ isVisible, onClose, videoDuration
                 <h3 className="text-white font-semibold">Events Log</h3>
               </div>
               <button
-                onClick={onClose}
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
