@@ -38,15 +38,19 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
     if (playEventsVideo) {
       // Use the events video file from the public folder
       setVideoPath('/events-video.mov')
+      console.log('Setting video path to events-video.mov, playEventsVideo:', playEventsVideo)
     } else {
       // Set the video path to the public folder (served by the React app)
       setVideoPath('/screen-recording.mov')
+      console.log('Setting video path to screen-recording.mov, playEventsVideo:', playEventsVideo)
     }
   }, [playEventsVideo])
 
   useEffect(() => {
     // Play video when shouldPlayVideo becomes true
     if (shouldPlayVideo && videoRef.current) {
+      console.log('Starting video playback, shouldPlayVideo:', shouldPlayVideo, 'playEventsVideo:', playEventsVideo, 'videoPath:', videoPath)
+      
       // Set video properties for autoplay
       videoRef.current.muted = true
       videoRef.current.playsInline = true
@@ -63,6 +67,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
       if (playPromise !== undefined) {
         playPromise.then(() => {
           setIsVideoPlaying(true)
+          console.log('Video started playing successfully')
         }).catch((error) => {
           console.log('Video play failed:', error)
           // If autoplay fails, try playing on user interaction
@@ -78,7 +83,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
         })
       }
     }
-  }, [shouldPlayVideo, playEventsVideo])
+  }, [shouldPlayVideo, playEventsVideo, videoPath])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
@@ -104,14 +109,15 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
     if (videoRef.current && isVideoPlaying) {
       const currentTime = videoRef.current.currentTime
       
-      if (videoPath.includes('events-video')) {
+      // Use playEventsVideo prop directly instead of videoPath for more reliable detection
+      if (playEventsVideo) {
         // Events video: Show password animation from 18 to 23 seconds, dots complete by 21
         if (currentTime >= 18 && currentTime < 23) {
           setShowPasswordAnimation(true)
           // Calculate number of dots based on time (0.3 seconds per dot, complete by 21 seconds)
           const dotsToShow = Math.min(10, Math.floor((currentTime - 18) * 3.33))
           setPasswordDots(dotsToShow)
-          console.log('Events video - Password animation: SHOW at', currentTime, 'dots:', dotsToShow)
+          console.log('Events video - Password animation: SHOW at', currentTime, 'dots:', dotsToShow, 'playEventsVideo:', playEventsVideo)
         } else {
           setShowPasswordAnimation(false)
           setPasswordDots(0)
@@ -139,18 +145,23 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
   }
 
   const handleVideoEnd = () => {
+    console.log('Video ended, playEventsVideo:', playEventsVideo)
     setIsVideoPlaying(false)
-    setShowEventsLog(false)
     setShowPasswordAnimation(false)
     setPasswordDots(0)
+    
+    // Close events log when events video completes
+    if (playEventsVideo) {
+      setShowEventsLog(false)
+    }
     
     // Call the callback when events video completes
     if (playEventsVideo && onVideoComplete) {
       onVideoComplete()
     }
     
-    // Call the general video end callback to reset states
-    if (onVideoEnd) {
+    // Only reset states if it's not the events video (keep events video on screen)
+    if (!playEventsVideo && onVideoEnd) {
       onVideoEnd()
     }
   }
