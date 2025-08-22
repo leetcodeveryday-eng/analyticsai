@@ -12,9 +12,10 @@ interface MobileEmulatorProps {
   playEventsVideo?: boolean
   onVideoComplete?: () => void
   onVideoEnd?: () => void
+  onEventsLogClose?: () => void
 }
 
-const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, shouldPlayVideo, playEventsVideo, onVideoComplete, onVideoEnd }) => {
+const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, shouldPlayVideo, playEventsVideo, onVideoComplete, onVideoEnd, onEventsLogClose }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisComplete, setAnalysisComplete] = useState(false)
   const [overlayPosition, setOverlayPosition] = useState({ x: 92, y: 13 })
@@ -26,6 +27,8 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
   const [showEventsLog, setShowEventsLog] = useState(false)
   const [showPasswordAnimation, setShowPasswordAnimation] = useState(false)
   const [passwordDots, setPasswordDots] = useState(0)
+  const [hasPlayedEventsVideo, setHasPlayedEventsVideo] = useState(false)
+  const [hasPlayedOnboardingVideo, setHasPlayedOnboardingVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Debug: Log animation state changes
@@ -48,13 +51,27 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
 
   useEffect(() => {
     // Play video when shouldPlayVideo becomes true
+    console.log('hasPlayedEventsVideo:', hasPlayedEventsVideo, 'hasPlayedOnboardingVideo:', hasPlayedOnboardingVideo)
+    if (hasPlayedEventsVideo && hasPlayedOnboardingVideo) {
+      return
+    }
     if (shouldPlayVideo && videoRef.current && !isVideoPlaying) {
+      // Check if this specific video has already been played
+      const hasPlayedThisVideo = playEventsVideo ? hasPlayedEventsVideo : hasPlayedOnboardingVideo
+      
+      if (hasPlayedThisVideo) {
+        console.log('This video has already been played, skipping playback')
+        return
+      }
+      
+      console.log('hasPlayedEventsVideo:', hasPlayedEventsVideo, 'hasPlayedOnboardingVideo:', hasPlayedOnboardingVideo)
       console.log('Starting video playback, shouldPlayVideo:', shouldPlayVideo, 'playEventsVideo:', playEventsVideo, 'videoPath:', videoPath)
       
       // Set video properties for autoplay
       videoRef.current.muted = true
       videoRef.current.playsInline = true
-      videoRef.current.autoplay = playEventsVideo || false
+      videoRef.current.autoplay = false
+      videoRef.current.loop = false
       
       // Show events log when playing events video
       if (playEventsVideo) {
@@ -83,7 +100,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
         })
       }
     }
-  }, [shouldPlayVideo, playEventsVideo, videoPath, isVideoPlaying])
+  }, [shouldPlayVideo, playEventsVideo, videoPath, isVideoPlaying, hasPlayedEventsVideo, hasPlayedOnboardingVideo])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
@@ -107,6 +124,11 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
 
   const handleVideoTimeUpdate = () => {
     if (videoRef.current && isVideoPlaying) {
+      if (playEventsVideo) {
+        setHasPlayedEventsVideo(true)
+      } else {
+        setHasPlayedOnboardingVideo(true)
+      }
       const currentTime = videoRef.current.currentTime
       
       // Use playEventsVideo prop directly instead of videoPath for more reliable detection
@@ -150,14 +172,12 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
     setShowPasswordAnimation(false)
     setPasswordDots(0)
     
-    // Close events log when events video completes
-    if (playEventsVideo) {
-      setShowEventsLog(false)
-    }
+    // Mark the video as played
+
     
     // Call the callback when events video completes
     if (playEventsVideo && onVideoComplete) {
-      onVideoComplete()
+      // onVideoComplete()
     }
     
     // Only reset states if it's not the events video (keep events video on screen)
@@ -275,7 +295,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
                       ref={videoRef}
                       src={videoPath}
                       className="w-full h-full object-cover"
-                      autoPlay={playEventsVideo}
+                      autoPlay={false}
                       muted={true}
                       playsInline={true}
                       controls={false}
@@ -283,6 +303,7 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
                       onLoadedMetadata={handleVideoLoad}
                       onTimeUpdate={handleVideoTimeUpdate}
                       onEnded={handleVideoEnd}
+
                     />
                     
                     {/* Password Typing Animation */}
@@ -352,7 +373,10 @@ const MobileEmulator: React.FC<MobileEmulatorProps> = ({ appData, onFileUpload, 
       {/* Events Log Popup */}
       {showEventsLog && (<EventsLog
         isVisible={showEventsLog}
-        onClose={() => setShowEventsLog(false)}
+        onClose={() => {
+          console.log('Events log manually closed, playEventsVideo:', playEventsVideo, 'hasPlayedEventsVideo:', hasPlayedEventsVideo);
+          setShowEventsLog(false);
+        }}
         videoDuration={videoDuration}
         isPlaying={isVideoPlaying}
       />)}

@@ -69,7 +69,7 @@ const EventsLog: React.FC<EventsLogProps> = ({ isVisible, onClose, videoDuration
 
   return (
     <AnimatePresence>
-      {(
+      {isVisible && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -346,7 +346,7 @@ Access dashboard via floating analytics button on home screen
 View all events with detailed properties and timestamps
 The system is now ready to provide valuable insights into your onboarding funnel, helping you identify drop-off points and optimize the user experience. All events are properly instrumented and will fire at the exact moments specified in your requirements.
 
-Click the "Play Events" button to see the trached events in the mobile emulator.
+Click the "Play Events" button to see the tracked events in the mobile emulator.
 
 Would you like me to make a Pull Request for the changes?`
         
@@ -384,6 +384,10 @@ Would you like me to make a Pull Request for the changes?`
   }
 
   const handleVideoComplete = () => {
+    addTypingMessage('Would you like me to create a pull request for the code changes?')
+  }
+
+  const handleEventsLogClose = () => {
     addTypingMessage('Would you like me to create a pull request for the code changes?')
   }
 
@@ -496,9 +500,9 @@ Would you like me to make a Pull Request for the changes?`
                       playEventsVideo={playEventsVideo}
                       onVideoComplete={handleVideoComplete}
                       onVideoEnd={() => {
-                        setPlayEventsVideo(false)
                         setShouldPlayVideo(false)
                       }}
+                      onEventsLogClose={handleEventsLogClose}
                     />
                   </div>
                 </div>
